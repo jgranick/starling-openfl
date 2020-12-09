@@ -773,6 +773,7 @@ class Starling extends EventDispatcher
         var pressure:Float = 1.0;
         var width:Float = 1.0;
         var height:Float = 1.0;
+        var hitStage:Bool = event.target == event.currentTarget;
 
         // figure out general touch properties
         if (Std.is(event, MouseEvent))
@@ -785,7 +786,7 @@ class Starling extends EventDispatcher
             // MouseEvent.buttonDown returns true for both left and right button (AIR supports
             // the right mouse button). We only want to react on the left button for now,
             // so we have to save the state for the left button manually.
-            if (event.type == MouseEvent.MOUSE_DOWN)    __leftMouseDown = true;
+            if (event.type == MouseEvent.MOUSE_DOWN && hitStage)    __leftMouseDown = true;
             else if (event.type == MouseEvent.MOUSE_UP) __leftMouseDown = false;
         }
         else
@@ -818,6 +819,11 @@ class Starling extends EventDispatcher
             case MouseEvent.MOUSE_UP:    phase = TouchPhase.ENDED;
             case MouseEvent.MOUSE_MOVE:
                 phase = (__leftMouseDown ? TouchPhase.MOVED : TouchPhase.HOVER);
+        }
+
+        // If the touch hit an OpenFL DisplayObject, treat it as a hover/move event intead
+        if(!hitStage && phase == TouchPhase.BEGAN){
+            phase = (__leftMouseDown ? TouchPhase.MOVED : TouchPhase.HOVER);
         }
 
         // move position into viewport bounds
